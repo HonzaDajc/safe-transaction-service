@@ -29,7 +29,7 @@ class BinanceClient:
 
     def get_eth_usd_price(self) -> float:
         """
-        :return: current USD price for ethereum using Kraken
+        :return: current USD price for ethereum using Binance
         :raises: CannotGetPrice
         """
-        return self._get_price('ETHUSDT')
+        return self._get_price('FTMUSDT')

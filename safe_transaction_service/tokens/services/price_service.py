@@ -109,10 +109,7 @@ class PriceService:
         elif self.ethereum_network in (EthereumNetwork.ENERGY_WEB_CHAIN, EthereumNetwork.VOLTA):
             return self.get_ewt_usd_price()
         else:
-            try:
-                return self.kraken_client.get_eth_usd_price()
-            except CannotGetPrice:
-                return self.binance_client.get_eth_usd_price()
+            return self.binance_client.get_eth_usd_price()
 
     @cachedmethod(cache=operator.attrgetter('cache_token_eth_value'))
     @cache_memoize(60 * 30, prefix='balances-get_token_eth_value')  # 30 minutes

@@ -129,7 +129,9 @@ class EthereumBlockManager(models.Manager):
         try:
             return super().create(
                 number=block['number'],
-                gas_limit=block['gasLimit'],
+                # go-opera is returning numberwhich overflows
+                # gas_limit=block['gasLimit'],
+                gas_limit=7000000,
                 gas_used=block['gasUsed'],
                 timestamp=datetime.datetime.fromtimestamp(block['timestamp'],
                                                           datetime.timezone.utc),
