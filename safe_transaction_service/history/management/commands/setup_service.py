@@ -139,6 +139,12 @@ MASTER_COPIES: Dict[EthereumNetwork, List[Tuple[str, int, str]]] = {
         ('0x3E5c63644E683549055b9Be8653de26E0B4CD36E', 8485899, '1.3.0+L2'),
         ('0xd9Db270c1B5E3Bd161E8c8503c55cEABeE709552', 8485903, '1.3.0'),
     ],
+    '250': [
+        ('0x87EB227FE974e9E1d3Bc4Da562e0Bd3C348c2B34',4000000, '1.2.0'),
+    ],
+    '4002': [
+        ('0x5AF747c63C048f4A79c2bFA6ea0a4A4B2805b44D', 375726, '1.2.0'),
+    ],
 }
 
 PROXY_FACTORIES: Dict[EthereumNetwork, List[Tuple[str, int]]] = {
@@ -193,6 +199,12 @@ PROXY_FACTORIES: Dict[EthereumNetwork, List[Tuple[str, int]]] = {
     EthereumNetwork.BINANCE: [
         ('0xa6B71E26C5e0845f74c812102Ca7114b6a896AB2', 8485873),  # v1.3.0
     ],
+    '250': [
+        ('0xc3C41Ab65Dabe3ae250A0A1FE4706FdB7ECEB951', 4000000),
+    ],
+    '4002': [
+        ('0xf4F2228659C026c96a8FD8156d8ABe1Db7105915',375703),
+    ]
 }
 
 
@@ -212,13 +224,14 @@ class Command(BaseCommand):
                 self.stdout.write(self.style.SUCCESS('Task %s was already created' % task.name))
 
         self.stdout.write(self.style.SUCCESS('Setting up Safe Contract Addresses'))
+        self.setup_my_network()
         ethereum_client = EthereumClientProvider()
-        ethereum_network = ethereum_client.get_network()
+        ethereum_network = ethereum_client.w3.net.version
         if ethereum_network in MASTER_COPIES:
-            self.stdout.write(self.style.SUCCESS(f'Setting up {ethereum_network.name} safe addresses'))
+            self.stdout.write(self.style.SUCCESS(f'Setting up {ethereum_network} safe addresses'))
             self._setup_safe_master_copies(MASTER_COPIES[ethereum_network])
         if ethereum_network in PROXY_FACTORIES:
-            self.stdout.write(self.style.SUCCESS(f'Setting up {ethereum_network.name} proxy factory addresses'))
+            self.stdout.write(self.style.SUCCESS(f'Setting up {ethereum_network} proxy factory addresses'))
             self._setup_safe_proxy_factories(PROXY_FACTORIES[ethereum_network])
 
         if not (ethereum_network in MASTER_COPIES and ethereum_network in PROXY_FACTORIES):
@@ -247,3 +260,9 @@ class Command(BaseCommand):
                                                    'initial_block_number': initial_block_number,
                                                    'tx_block_number': initial_block_number,
                                                })
+
+    def setup_my_network(self):
+        ethereum_client = EthereumClientProvider()
+        ethereum_network = ethereum_client.w3.net.version
+        self._setup_safe_master_copies(MASTER_COPIES[ethereum_network])
+        self._setup_safe_proxy_factories(PROXY_FACTORIES[ethereum_network])
