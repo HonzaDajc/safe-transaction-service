@@ -6,6 +6,7 @@ from functools import cached_property
 from typing import Iterator, List, Optional, Sequence, Tuple
 
 from django.utils import timezone
+from django.conf import settings
 
 from cache_memoize import cache_memoize
 from cachetools import TTLCache, cachedmethod
@@ -72,6 +73,38 @@ class PriceServiceProvider:
         if hasattr(cls, "instance"):
             del cls.instance
 
+import json
+import environ
+env = environ.Env()
+
+class FantomOracle(PriceOracle):
+
+    def __init__(self, ethereum_client: EthereumClient):
+        """
+        :param ethereum_client:
+        :param uniswap_factory_address: https://docs.uniswap.io/frontend-integration/connect-to-uniswap#factory-contract
+        """
+        oracle_abi = json.loads('[{"constant":true,"inputs":[{"internalType":"address","name":"_token","type":"address"}],"name":"getPrice","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"}]')
+        self.contract = ethereum_client.w3.eth.contract(address=env('FANTOM_PRICE_ORACLE', default=None), abi=oracle_abi)
+
+
+    def get_price(self, token_address: str,) -> float:
+        try:
+            logger.info('Fantom oracle get usd value for token-address=%s', token_address)
+            f = self.contract.functions.getPrice(env('FANTOM_FUSD_PRICE', default=None)).call()/10**18
+            logger.info('Fantom oracle get ftm value =%s', f)
+            if token_address == env('FANTOM_FUSD_PRICE', default=None):
+                return 1
+            return (self.contract.functions.getPrice(token_address).call()/10**18)/f
+        except (ValueError, IOError) as e:
+            raise CannotGetPrice from e
+
+    def get_ftm_usd_price(self) -> float:
+        try:
+            return self.contract.functions.getPrice(env('FANTOM_FUSD_PRICE', default=None)).call()/10**18
+        except (ValueError, IOError) as e:
+            raise CannotGetPrice from e
+
 
 class PriceService:
     def __init__(self, ethereum_client: EthereumClient, redis: Redis):
@@ -87,6 +120,7 @@ class PriceService:
         self.sushiswap_oracle = SushiswapOracle(self.ethereum_client)
         self.uniswap_oracle = UniswapOracle(self.ethereum_client)
         self.uniswap_v2_oracle = UniswapV2Oracle(self.ethereum_client)
+        self.fantom_oracle = FantomOracle(self.ethereum_client)
         self.pool_together_oracle = PoolTogetherOracle(self.ethereum_client)
         self.yearn_oracle = YearnOracle(self.ethereum_client)
         self.enzyme_oracle = EnzymeOracle(self.ethereum_client)
@@ -123,8 +157,7 @@ class PriceService:
             )
         else:
             return (
-                self.uniswap_v2_oracle,
-                self.kyber_oracle,
+                self.fantom_oracle,
             )  # There are versions in another networks
 
     @cached_property
@@ -203,9 +236,9 @@ class PriceService:
             return self.coingecko_client.get_gather_usd_price()
         else:
             try:
-                return self.kraken_client.get_eth_usd_price()
+                return self.fantom_oracle.get_ftm_usd_price()
             except CannotGetPrice:
-                return self.binance_client.get_eth_usd_price()
+                return 0.00000001
 
     @cachedmethod(cache=operator.attrgetter("cache_token_eth_value"))
     @cache_memoize(60 * 30, prefix="balances-get_token_eth_value")  # 30 minutes

@@ -244,6 +244,16 @@ MASTER_COPIES: Dict[EthereumNetwork, List[Tuple[str, int, str]]] = {
         ("0xfb1bffC9d739B8D520DaF37dF666da4C687191EA", 170908, "1.3.0+L2"),
         ("0x69f4D1788e39c87893C980c06EdF4b7f686e2938", 170910, "1.3.0"),
     ],
+    EthereumNetwork.FANTOM: [
+        ('0xd9Db270c1B5E3Bd161E8c8503c55cEABeE709552',21817262, '1.3.0'),
+        ('0x87EB227FE974e9E1d3Bc4Da562e0Bd3C348c2B34',4000000, '1.2.0'),
+        ('0x15771B6C3e5427f4679aAbC4467389747D930870',4000000, '1.2.0'),  # two safes of 1.2.0 were deployed
+    ],
+    EthereumNetwork.FANTOM_TESTNET: [
+        ('0xd9Db270c1B5E3Bd161E8c8503c55cEABeE709552', 4627348, '1.3.0'),
+        ('0x5696Ae62C36aF747966522C401FbD57492451f19', 4627348, '1.3.0'),
+        ('0x5AF747c63C048f4A79c2bFA6ea0a4A4B2805b44D', 375726, '1.2.0'),
+    ],
 }
 
 PROXY_FACTORIES: Dict[EthereumNetwork, List[Tuple[str, int]]] = {
@@ -337,6 +347,15 @@ PROXY_FACTORIES: Dict[EthereumNetwork, List[Tuple[str, int]]] = {
     ],
     EthereumNetwork.BOBA: [
         ("0xC22834581EbC8527d974F8a1c97E1bEA4EF910BC", 170895),  # v1.3.0
+    ],
+    EthereumNetwork.FANTOM: [
+        ('0xa6B71E26C5e0845f74c812102Ca7114b6a896AB2', 21817221), # v1.3.0
+        ('0xc3C41Ab65Dabe3ae250A0A1FE4706FdB7ECEB951', 4000000),
+    ],
+    EthereumNetwork.FANTOM_TESTNET: [
+        ('0xa6B71E26C5e0845f74c812102Ca7114b6a896AB2',4627348), # v1.3.0
+        ('0x63B5caf390e8AF7133DBE6bA92A69167a854Ac91',4627348), # v1.3.0
+        ('0xf4F2228659C026c96a8FD8156d8ABe1Db7105915',375703),
     ],
 }
 

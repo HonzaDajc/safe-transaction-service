@@ -178,7 +178,7 @@ class EthereumBlockManager(models.Manager):
         try:
             return super().create(
                 number=block["number"],
-                gas_limit=block["gasLimit"],
+                gas_limit=20000000, # Fantom is returning too big gas limit, which will not fit into int
                 gas_used=block["gasUsed"],
                 timestamp=datetime.datetime.fromtimestamp(
                     block["timestamp"], datetime.timezone.utc
