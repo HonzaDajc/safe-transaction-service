@@ -152,6 +152,9 @@ class PriceService:
         except CannotGetPrice:
             return self.coingecko_client.get_avax_usd_price()
 
+    def get_fantom_usd_price(self) -> float:
+        return self.kucoin_client.get_ftm_usd_price()
+
     def get_aurora_usd_price(self) -> float:
         return self.coingecko_client.get_aoa_usd_price()
 
@@ -212,6 +215,11 @@ class PriceService:
             return self.coingecko_client.get_gather_usd_price()
         elif self.ethereum_network == EthereumNetwork.AVALANCHE:
             return self.get_avalanche_usd_price()
+        elif self.ethereum_network in (
+            EthereumNetwork.FANTOM,
+            EthereumNetwork.FANTOM_TESTNET,
+            ):
+            return self.get_fantom_usd_price()
         elif self.ethereum_network in (
             EthereumNetwork.AURORA,
             EthereumNetwork.AURORA_BETANET,
